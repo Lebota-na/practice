@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BotsAuto — Botswana's Premier Vehicle Auction</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #e0f4fb;
+    --sky-mid: #b3e3f5;
+    --sky-deep: #5bbde4;
+    --sky-vivid: #1a9ed4;
+    --sky-dark: #0b6fa3;
+    --navy: #0a2a3d;
+    --white: #ffffff;
+    --off-white: #f4fafd;
+    --slate: #3d6070;
+    --muted: #7aa4b8;
+    --gold: #f5b940;
+    --gold-hover: #e8a320;
+    --red: #e84c4c;
+    --green: #2ec27e;
+    --border: rgba(91, 189, 228, 0.25);
+    --shadow: 0 4px 24px rgba(10, 42, 61, 0.1);
+    --shadow-lg: 0 12px 48px rgba(10, 42, 61, 0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--off-white);
+    color: var(--navy);
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── NAVBAR ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 5%;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: var(--sky-vivid);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .logo-icon svg { width: 22px; height: 22px; fill: white; }
+
+  .logo-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.9rem;
+    letter-spacing: 2px;
+    color: var(--navy);
+    line-height: 1;
+  }
+
+  .logo-text span { color: var(--sky-vivid); }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--slate);
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--sky-vivid); }
+
+  .nav-cta {
+    background: var(--sky-vivid);
+    color: white !important;
+    padding: 9px 22px;
+    border-radius: 8px;
+    transition: background 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--sky-dark) !important; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    padding: 68px 5% 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 60px;
+    background: linear-gradient(145deg, #d5eef9 0%, #eaf6fd 40%, #f4fafd 100%);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    right: -120px; top: -80px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(91,189,228,0.25) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .hero-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(91,189,228,0.2);
+    border: 1px solid rgba(91,189,228,0.4);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--sky-dark);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .hero-label::before {
+    content: '';
+    width: 7px; height: 7px;
+    background: var(--sky-vivid);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.3); }
+  }
+
+  .hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.8rem, 5vw, 4.2rem);
+    line-height: 1.1;
+    color: var(--navy);
+    margin-bottom: 20px;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--sky-vivid);
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--slate);
+    line-height: 1.7;
+    max-width: 480px;
+    margin-bottom: 36px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--sky-vivid);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 4px 16px rgba(26,158,212,0.35);
+  }
+
+  .btn-primary:hover {
+    background: var(--sky-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(26,158,212,0.4);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--navy);
+    border: 1.5px solid var(--sky-mid);
+    padding: 13px 28px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .btn-outline:hover { border-color: var(--sky-vivid); color: var(--sky-vivid); }
+
+  .hero-stats {
+    display: flex;
+    gap: 36px;
+    margin-top: 44px;
+    padding-top: 36px;
+    border-top: 1px solid var(--border);
+  }
+
+  .stat-item { text-align: left; }
+
+  .stat-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: var(--sky-vivid);
+    letter-spacing: 1px;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.78rem;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-top: 3px;
+  }
+
+  /* ── HERO VISUAL ── */
+  .hero-visual {
+    position: relative;
+    z-index: 1;
+    animation: floatUp 0.8s ease-out both;
+  }
+
+  @keyframes floatUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .featured-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .card-img {
+    width: 100%;
+    height: 240px;
+    background: linear-gradient(135deg, #a8d9ef 0%, #5bbde4 50%, #1a9ed4 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .car-silhouette {
+    width: 80%;
+    opacity: 0.9;
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
+  }
+
+  .card-badge {
+    position: absolute;
+    top: 14px; left: 14px;
+    background: var(--gold);
+    color: var(--navy);
+    padding: 5px 12px;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .live-badge {
+    position: absolute;
+    top: 14px; right: 14px;
+    background: var(--red);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .live-dot {
+    width: 6px; height: 6px;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 1.2s infinite;
+  }
+
+  .card-body { padding: 20px 22px; }
+
+  .card-make {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--sky-vivid);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .card-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.45rem;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+
+  .card-meta {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .card-meta span {
+    font-size: 0.8rem;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+
+  .bid-info {}
+
+  .bid-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .bid-amount {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    color: var(--navy);
+    letter-spacing: 1px;
+    line-height: 1.1;
+  }
+
+  .timer {
+    background: var(--sky);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    text-align: center;
+  }
+
+  .timer-label { font-size: 0.68rem; color: var(--muted); font-weight: 500; letter-spacing: 0.4px; text-transform: uppercase; }
+
+  .timer-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    color: var(--sky-dark);
+    letter-spacing: 2px;
+    line-height: 1.1;
+  }
+
+  .bid-btn {
+    background: var(--sky-vivid);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .bid-btn:hover { background: var(--sky-dark); }
+
+  /* ── FLOATING MINI CARDS ── */
+  .float-card {
+    position: absolute;
+    background: white;
+    border-radius: 12px;
+    padding: 12px 16px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+    animation: floatBob 4s ease-in-out infinite;
+  }
+
+  .float-card-1 {
+    top: 20px; right: -30px;
+    animation-delay: 0s;
+  }
+
+  .float-card-2 {
+    bottom: 60px; left: -40px;
+    animation-delay: 2s;
+  }
+
+  @keyframes floatBob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .float-card .fc-label { font-size: 0.68rem; color: var(--muted); font-weight: 500; margin-bottom: 3px; }
+  .float-card .fc-val { font-weight: 700; color: var(--navy); }
+  .float-card .fc-val.green { color: var(--green); }
+
+  /* ── SECTION ── */
+  section { position: relative; z-index: 1; }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+
+  .section-eyebrow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--sky-vivid);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 3.5vw, 2.8rem);
+    color: var(--navy);
+    line-height: 1.2;
+    margin-bottom: 14px;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+    color: var(--slate);
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ── AUCTIONS GRID ── */
+  .auctions {
+    padding: 100px 5%;
+    background: white;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    background: var(--sky);
+    border: 1px solid var(--border);
+    color: var(--slate);
+    padding: 9px 20px;
+    border-radius: 100px;
+    font-size: 0.83rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .filter-btn:hover, .filter-btn.active {
+    background: var(--sky-vivid);
+    border-color: var(--sky-vivid);
+    color: white;
+  }
+
+  .auctions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+  }
+
+  .auction-card {
+    background: var(--off-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.25s, box-shadow 0.25s;
+    cursor: pointer;
+    animation: fadeInUp 0.5s ease-out both;
+  }
+
+  .auction-card:nth-child(2) { animation-delay: 0.1s; }
+  .auction-card:nth-child(3) { animation-delay: 0.2s; }
+  .auction-card:nth-child(4) { animation-delay: 0.3s; }
+  .auction-card:nth-child(5) { animation-delay: 0.4s; }
+  .auction-card:nth-child(6) { animation-delay: 0.5s; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .auction-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .auction-img {
+    height: 190px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .auction-img svg { width: 100%; height: 100%; }
+
+  .auction-img-bg-1 { background: linear-gradient(135deg, #b3e3f5, #5bbde4); }
+  .auction-img-bg-2 { background: linear-gradient(135deg, #c8ecf8, #7ecde8); }
+  .auction-img-bg-3 { background: linear-gradient(135deg, #d5eef9, #94d8ee); }
+  .auction-img-bg-4 { background: linear-gradient(135deg, #a0d9ef, #4cb5e2); }
+  .auction-img-bg-5 { background: linear-gradient(135deg, #bce6f6, #6ac3e7); }
+  .auction-img-bg-6 { background: linear-gradient(135deg, #cceaf8, #82cfe9); }
+
+  .img-content {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .auction-body {
+    padding: 16px 18px 20px;
+  }
+
+  .a-make { font-size: 0.7rem; font-weight: 700; color: var(--sky-vivid); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+  .a-name { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--navy); margin-bottom: 8px; }
+
+  .a-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .a-tag {
+    background: var(--sky);
+    border: 1px solid var(--border);
+    color: var(--slate);
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .a-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .a-price { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; color: var(--navy); letter-spacing: 1px; }
+  .a-price-label { font-size: 0.68rem; color: var(--muted); font-weight: 500; }
+
+  .a-timer {
+    font-size: 0.78rem;
+    color: var(--sky-dark);
+    font-weight: 600;
+    background: var(--sky);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .a-status-live {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--red);
+  }
+
+  .dot-live {
+    width: 6px; height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: pulse 1.2s infinite;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how-it-works {
+    padding: 100px 5%;
+    background: linear-gradient(180deg, var(--sky) 0%, var(--off-white) 100%);
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    position: relative;
+  }
+
+  .steps-grid::before {
+    content: '';
+    position: absolute;
+    top: 44px; left: 12%;
+    width: 76%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--sky-mid), var(--sky-vivid), var(--sky-mid));
+    z-index: 0;
+  }
+
+  .step {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 20px 24px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+
+  .step:hover { transform: translateY(-5px); box-shadow: var(--shadow); }
+
+  .step-num {
+    width: 52px; height: 52px;
+    background: var(--sky-vivid);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    color: white;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 16px rgba(26,158,212,0.35);
+  }
+
+  .step-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.05rem;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+
+  .step-desc { font-size: 0.82rem; color: var(--slate); line-height: 1.6; }
+
+  /* ── SELL YOUR CAR ── */
+  .sell-section {
+    padding: 100px 5%;
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .sell-section::before {
+    content: '';
+    position: absolute;
+    left: -100px; top: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(91,189,228,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .sell-section::after {
+    content: '';
+    position: absolute;
+    right: -80px; bottom: -80px;
+    width: 350px; height: 350px;
+    background: radial-gradient(circle, rgba(26,158,212,0.12) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .sell-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sell-content .section-eyebrow { color: var(--sky-mid); }
+  .sell-content .section-title { color: white; text-align: left; margin-bottom: 16px; }
+  .sell-content .section-subtitle { color: rgba(255,255,255,0.65); text-align: left; margin: 0 0 32px; }
+
+  .perks { display: flex; flex-direction: column; gap: 14px; }
+
+  .perk {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+
+  .perk-icon {
+    width: 36px; height: 36px;
+    background: var(--sky-vivid);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+
+  .perk-text strong { display: block; font-size: 0.88rem; color: white; font-weight: 600; margin-bottom: 2px; }
+  .perk-text span { font-size: 0.78rem; color: rgba(255,255,255,0.55); }
+
+  /* ── SELL FORM ── */
+  .sell-form {
+    background: white;
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sell-form h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    color: var(--navy);
+    margin-bottom: 24px;
+  }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-group label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--slate);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    color: var(--navy);
+    background: var(--off-white);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus { border-color: var(--sky-vivid); background: white; }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  .form-submit {
+    width: 100%;
+    background: var(--sky-vivid);
+    color: white;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .form-submit:hover { background: var(--sky-dark); transform: translateY(-1px); }
+
+  /* ── TESTIMONIALS ── */
+  .testimonials {
+    padding: 100px 5%;
+    background: white;
+  }
+
+  .testi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .testi-card {
+    background: var(--off-white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 24px;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+
+  .testi-card:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+
+  .stars { color: var(--gold); font-size: 1rem; margin-bottom: 12px; letter-spacing: 2px; }
+
+  .testi-text {
+    font-size: 0.9rem;
+    color: var(--slate);
+    line-height: 1.7;
+    margin-bottom: 18px;
+    font-style: italic;
+  }
+
+  .testi-author { display: flex; align-items: center; gap: 10px; }
+
+  .testi-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    color: white;
+  }
+
+  .av-1 { background: linear-gradient(135deg, var(--sky-vivid), var(--sky-dark)); }
+  .av-2 { background: linear-gradient(135deg, var(--gold), var(--gold-hover)); }
+  .av-3 { background: linear-gradient(135deg, var(--green), #27a36c); }
+
+  .testi-name { font-weight: 600; font-size: 0.88rem; color: var(--navy); }
+  .testi-loc { font-size: 0.75rem; color: var(--muted); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.65);
+    padding: 64px 5% 32px;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 32px;
+  }
+
+  .footer-brand .logo-text { color: white; }
+  .footer-brand .logo-text span { color: var(--sky-mid); }
+  .footer-brand p { font-size: 0.85rem; line-height: 1.7; margin-top: 12px; max-width: 260px; }
+
+  .footer-col h4 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  .footer-col ul { list-style: none; }
+  .footer-col li { margin-bottom: 10px; }
+  .footer-col a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-col a:hover { color: var(--sky-mid); }
+
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+  }
+
+  .footer-bottom a { color: var(--sky-mid); text-decoration: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding-top: 80px; }
+    .hero-visual { display: none; }
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .steps-grid::before { display: none; }
+    .sell-inner { grid-template-columns: 1fr; gap: 40px; }
+    .testi-grid { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 600px) {
+    .nav-links { display: none; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr; }
+    .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="#" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/>
+        <circle cx="7.5" cy="14.5" r="1.5"/>
+        <circle cx="16.5" cy="14.5" r="1.5"/>
+      </svg>
+    </div>
+    <span class="logo-text">Bots<span>Auto</span></span>
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="#auctions">Live Auctions</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#sell">Sell a Car</a></li>
+    <li><a href="#">About</a></li>
+    <li><a href="#" class="nav-cta">Register</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content" style="animation: fadeInUp 0.7s ease-out both;">
+    <div class="hero-label">🇧🇼 Botswana's #1 Auto Auction</div>
+    <h1 class="hero-title">
+      Bid, Win & Drive <em>Your Dream</em> Car Home
+    </h1>
+    <p class="hero-subtitle">
+      BotsAuto connects verified buyers and sellers across Botswana in live, transparent vehicle auctions — from Gaborone to Francistown and beyond.
+    </p>
+    <div class="hero-actions">
+      <a href="#auctions" class="btn-primary">Browse Auctions →</a>
+      <a href="#sell" class="btn-outline">Sell Your Car</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-number">1,240+</div>
+        <div class="stat-label">Cars Auctioned</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">8,500+</div>
+        <div class="stat-label">Registered Bidders</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">P2.4M+</div>
+        <div class="stat-label">Total Sales Value</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="float-card float-card-1">
+      <div class="fc-label">Top Bid Today</div>
+      <div class="fc-val green">P 148,000</div>
+    </div>
+
+    <div class="featured-card">
+      <div class="card-img auction-img-bg-1">
+        <div class="card-badge">⭐ Featured</div>
+        <div class="live-badge"><span class="live-dot"></span> LIVE</div>
+        <svg class="car-silhouette" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+          <g fill="rgba(255,255,255,0.9)">
+            <path d="M270 75H30c-5.5 0-10 4.5-10 10v10c0 5.5 4.5 10 10 10h240c5.5 0 10-4.5 10-10V85c0-5.5-4.5-10-10-10z"/>
+            <path d="M55 75h190l-20-35c-3-5.5-8.8-9-15-9H90c-6.2 0-12 3.5-15 9L55 75z"/>
+            <circle cx="75" cy="98" r="16" fill="rgba(26,158,212,0.7)" stroke="white" stroke-width="3"/>
+            <circle cx="75" cy="98" r="7" fill="white"/>
+            <circle cx="225" cy="98" r="16" fill="rgba(26,158,212,0.7)" stroke="white" stroke-width="3"/>
+            <circle cx="225" cy="98" r="7" fill="white"/>
+            <path d="M105 48h90v25h-90z" fill="rgba(135,210,240,0.6)"/>
+          </g>
+        </svg>
+      </div>
+      <div class="card-body">
+        <div class="card-make">Toyota</div>
+        <div class="card-name">Land Cruiser Prado 2021</div>
+        <div class="card-meta">
+          <span>⚙️ Automatic</span>
+          <span>⛽ Diesel</span>
+          <span>📍 Gaborone</span>
+        </div>
+        <div class="card-footer">
+          <div class="bid-info">
+            <div class="bid-label">Current Bid</div>
+            <div class="bid-amount">P 148,000</div>
+          </div>
+          <div class="timer">
+            <div class="timer-label">Ends in</div>
+            <div class="timer-value" id="heroTimer">02:14:38</div>
+          </div>
+          <button class="bid-btn">Place Bid</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="float-card float-card-2">
+      <div class="fc-label">Active Bidders</div>
+      <div class="fc-val">🔥 24 bidding</div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE AUCTIONS -->
+<section class="auctions" id="auctions">
+  <div class="section-header">
+    <div class="section-eyebrow">Live & Upcoming</div>
+    <h2 class="section-title">Current Auctions</h2>
+    <p class="section-subtitle">Browse verified vehicles from certified dealers and private sellers across Botswana.</p>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active">All Vehicles</button>
+    <button class="filter-btn">SUVs & 4x4</button>
+    <button class="filter-btn">Sedans</button>
+    <button class="filter-btn">Bakkies / Pickups</button>
+    <button class="filter-btn">Minibuses</button>
+    <button class="filter-btn">Ending Soon</button>
+  </div>
+
+  <div class="auctions-grid">
+
+    <!-- Card 1 -->
+    <div class="auction-card">
+      <div class="auction-img auction-img-bg-1">
+        <div class="img-content">
+          <svg viewBox="0 0 260 110" xmlns="http://www.w3.org/2000/svg">
+            <g fill="rgba(255,255,255,0.85)">
+              <path d="M230 68H30c-4 0-7 3-7 7v8c0 4 3 7 7 7h200c4 0 7-3 7-7v-8c0-4-3-7-7-7z"/>
+              <path d="M48 68h164l-16-28c-2.5-4.5-7.2-7-12.2-7H76c-5 0-9.7 2.5-12.2 7L48 68z"/>
+              <circle cx="65" cy="88" r="13" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2.5"/>
+              <circle cx="65" cy="88" r="5.5" fill="white"/>
+              <circle cx="195" cy="88" r="13" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2.5"/>
+              <circle cx="195" cy="88" r="5.5" fill="white"/>
+              <path d="M90 42h80v24H90z" fill="rgba(160,220,240,0.5)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="card-badge" style="position:absolute; top:10px; left:10px; background:#e84c4c; color:white; padding:4px 10px; border-radius:100px; font-size:0.7rem; font-weight:700; display:flex; align-items:center; gap:4px;"><span style="width:5px;height:5px;background:white;border-radius:50%;display:inline-block;animation:pulse 1.2s infinite;"></span> LIVE</div>
+      </div>
+      <div class="auction-body">
+        <div class="a-make">Ford</div>
+        <div class="a-name">Ranger Wildtrak 2020</div>
+        <div class="a-tags">
+          <span class="a-tag">Bakkie</span>
+          <span class="a-tag">Manual</span>
+          <span class="a-tag">Francistown</span>
+        </div>
+        <div class="a-footer">
+          <div>
+            <div class="a-price-label">Bid from</div>
+            <div class="a-price">P 95,000</div>
+          </div>
+          <div class="a-status-live"><span class="dot-live"></span> 18 bidders</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="auction-card">
+      <div class="auction-img auction-img-bg-2">
+        <div class="img-content">
+          <svg viewBox="0 0 260 110" xmlns="http://www.w3.org/2000/svg">
+            <g fill="rgba(255,255,255,0.85)">
+              <path d="M225 70H35c-4 0-6.5 2.5-6.5 6.5v8c0 4 2.5 6.5 6.5 6.5h190c4 0 6.5-2.5 6.5-6.5v-8c0-4-2.5-6.5-6.5-6.5z"/>
+              <path d="M60 70l14-30c2-4.5 6.5-7 11.5-7h89c5 0 9.5 2.5 11.5 7l14 30H60z"/>
+              <circle cx="72" cy="89" r="12" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2"/>
+              <circle cx="72" cy="89" r="5" fill="white"/>
+              <circle cx="188" cy="89" r="12" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2"/>
+              <circle cx="188" cy="89" r="5" fill="white"/>
+              <path d="M88 43h84v25H88z" fill="rgba(160,220,240,0.5)"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="auction-body">
+        <div class="a-make">Mercedes-Benz</div>
+        <div class="a-name">C-Class C200 2019</div>
+        <div class="a-tags">
+          <span class="a-tag">Sedan</span>
+          <span class="a-tag">Auto</span>
+          <span class="a-tag">Gaborone</span>
+        </div>
+        <div class="a-footer">
+          <div>
+            <div class="a-price-label">Current bid</div>
+            <div class="a-price">P 210,000</div>
+          </div>
+          <div class="a-timer">⏱ 4h 22m</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="auction-card">
+      <div class="auction-img auction-img-bg-3">
+        <div class="img-content">
+          <svg viewBox="0 0 260 110" xmlns="http://www.w3.org/2000/svg">
+            <g fill="rgba(255,255,255,0.85)">
+              <rect x="22" y="55" width="216" height="40" rx="7"/>
+              <path d="M50 55l10-25c2-5 7-8 12-8h116c5 0 10 3 12 8l10 25H50z"/>
+              <circle cx="68" cy="88" r="13" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2.5"/>
+              <circle cx="68" cy="88" r="5" fill="white"/>
+              <circle cx="192" cy="88" r="13" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2.5"/>
+              <circle cx="192" cy="88" r="5" fill="white"/>
+              <path d="M86 30h88v23H86z" fill="rgba(160,220,240,0.55)"/>
+            </g>
+          </svg>
+        </div>
+        <div style="position:absolute;top:10px;left:10px;background:var(--gold);color:#0a2a3d;padding:4px 10px;border-radius:100px;font-size:0.7rem;font-weight:700;">⭐ No Reserve</div>
+      </div>
+      <div class="auction-body">
+        <div class="a-make">Volkswagen</div>
+        <div class="a-name">Polo Vivo 2022</div>
+        <div class="a-tags">
+          <span class="a-tag">Hatchback</span>
+          <span class="a-tag">Manual</span>
+          <span class="a-tag">Maun</span>
+        </div>
+        <div class="a-footer">
+          <div>
+            <div class="a-price-label">Opening bid</div>
+            <div class="a-price">P 52,000</div>
+          </div>
+          <div class="a-timer">⏱ Starts 14:00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="auction-card">
+      <div class="auction-img auction-img-bg-4">
+        <div class="img-content">
+          <svg viewBox="0 0 260 110" xmlns="http://www.w3.org/2000/svg">
+            <g fill="rgba(255,255,255,0.85)">
+              <path d="M235 72H25c-5 0-8 3-8 7v8c0 4 3 7 8 7h210c5 0 8-3 8-7v-8c0-4-3-7-8-7z"/>
+              <path d="M42 72l18-32c3-5 8-8 14-8h112c6 0 11 3 14 8l18 32H42z"/>
+              <circle cx="60" cy="90" r="14" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2.5"/>
+              <circle cx="60" cy="90" r="6" fill="white"/>
+              <circle cx="200" cy="90" r="14" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2.5"/>
+              <circle cx="200" cy="90" r="6" fill="white"/>
+              <path d="M85 40h90v30H85z" fill="rgba(160,220,240,0.5)"/>
+              <rect x="22" y="72" width="16" height="22" rx="2" fill="rgba(255,255,255,0.3)"/>
+              <rect x="222" y="72" width="16" height="22" rx="2" fill="rgba(255,255,255,0.3)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="card-badge" style="position:absolute; top:10px; left:10px; background:#e84c4c; color:white; padding:4px 10px; border-radius:100px; font-size:0.7rem; font-weight:700; display:flex; align-items:center; gap:4px;"><span style="width:5px;height:5px;background:white;border-radius:50%;display:inline-block;animation:pulse 1.2s infinite;"></span> LIVE</div>
+      </div>
+      <div class="auction-body">
+        <div class="a-make">Toyota</div>
+        <div class="a-name">HiAce Quantum 2018</div>
+        <div class="a-tags">
+          <span class="a-tag">Minibus</span>
+          <span class="a-tag">Diesel</span>
+          <span class="a-tag">Lobatse</span>
+        </div>
+        <div class="a-footer">
+          <div>
+            <div class="a-price-label">Current bid</div>
+            <div class="a-price">P 88,500</div>
+          </div>
+          <div class="a-status-live"><span class="dot-live"></span> 9 bidders</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="auction-card">
+      <div class="auction-img auction-img-bg-5">
+        <div class="img-content">
+          <svg viewBox="0 0 260 110" xmlns="http://www.w3.org/2000/svg">
+            <g fill="rgba(255,255,255,0.85)">
+              <path d="M228 68H32c-4.5 0-7.5 3-7.5 7v9c0 4 3 7 7.5 7h196c4.5 0 7.5-3 7.5-7v-9c0-4-3-7-7.5-7z"/>
+              <path d="M55 68l15-30c3-5.5 8.5-8.5 14.5-8.5h91c6 0 11.5 3 14.5 8.5l15 30H55z"/>
+              <circle cx="71" cy="87" r="13" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2.5"/>
+              <circle cx="71" cy="87" r="5" fill="white"/>
+              <circle cx="189" cy="87" r="13" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2.5"/>
+              <circle cx="189" cy="87" r="5" fill="white"/>
+              <path d="M88 29h84v37H88z" fill="rgba(160,220,240,0.5)"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <div class="auction-body">
+        <div class="a-make">BMW</div>
+        <div class="a-name">X5 xDrive 2020</div>
+        <div class="a-tags">
+          <span class="a-tag">SUV</span>
+          <span class="a-tag">Auto</span>
+          <span class="a-tag">Gaborone</span>
+        </div>
+        <div class="a-footer">
+          <div>
+            <div class="a-price-label">Bid from</div>
+            <div class="a-price">P 390,000</div>
+          </div>
+          <div class="a-timer">⏱ 1h 05m</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="auction-card">
+      <div class="auction-img auction-img-bg-6">
+        <div class="img-content">
+          <svg viewBox="0 0 260 110" xmlns="http://www.w3.org/2000/svg">
+            <g fill="rgba(255,255,255,0.85)">
+              <path d="M232 70H28c-4 0-6.5 2.5-6.5 6.5v8.5c0 4 2.5 6.5 6.5 6.5h204c4 0 6.5-2.5 6.5-6.5V76.5c0-4-2.5-6.5-6.5-6.5z"/>
+              <path d="M50 70l16-29c2.5-4.5 7.5-7 12.5-7h103c5 0 10 2.5 12.5 7l16 29H50z"/>
+              <circle cx="68" cy="88" r="13" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2"/>
+              <circle cx="68" cy="88" r="5" fill="white"/>
+              <circle cx="192" cy="88" r="13" fill="rgba(26,158,212,0.6)" stroke="white" stroke-width="2"/>
+              <circle cx="192" cy="88" r="5" fill="white"/>
+              <path d="M88 34h84v34H88z" fill="rgba(160,220,240,0.5)"/>
+            </g>
+          </svg>
+        </div>
+        <div style="position:absolute;top:10px;left:10px;background:var(--gold);color:#0a2a3d;padding:4px 10px;border-radius:100px;font-size:0.7rem;font-weight:700;">🔥 Hot Deal</div>
+      </div>
+      <div class="auction-body">
+        <div class="a-make">Nissan</div>
+        <div class="a-name">Navara NP300 2019</div>
+        <div class="a-tags">
+          <span class="a-tag">Bakkie</span>
+          <span class="a-tag">4x4</span>
+          <span class="a-tag">Serowe</span>
+        </div>
+        <div class="a-footer">
+          <div>
+            <div class="a-price-label">Current bid</div>
+            <div class="a-price">P 118,000</div>
+          </div>
+          <div class="a-timer">⏱ 22m left!</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="text-align:center; margin-top:48px;">
+    <a href="#" class="btn-outline">View All 84 Auctions →</a>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works" id="how">
+  <div class="section-header">
+    <div class="section-eyebrow">Simple Process</div>
+    <h2 class="section-title">How BotsAuto Works</h2>
+    <p class="section-subtitle">Buying or selling a vehicle in Botswana has never been easier or more transparent.</p>
+  </div>
+
+  <div class="steps-grid">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-title">Register Free</div>
+      <p class="step-desc">Create your verified BotsAuto account with your Omang or passport. Takes under 3 minutes.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-title">Browse & Inspect</div>
+      <p class="step-desc">View full vehicle history, inspection reports, and photos before you bid on any car.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-title">Place Your Bid</div>
+      <p class="step-desc">Bid live in real-time or set a maximum auto-bid. Get instant notifications on outbids.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-title">Win & Drive Away</div>
+      <p class="step-desc">Pay securely via Orange Money, FNB, or bank transfer. We handle all BURS paperwork.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SELL YOUR CAR -->
+<section class="sell-section" id="sell">
+  <div class="sell-inner">
+    <div class="sell-content">
+      <div class="section-eyebrow">List Your Vehicle</div>
+      <h2 class="section-title" style="text-align:left; margin-bottom:16px;">Sell Faster,<br>Earn <em style="font-style:italic; color:var(--sky-mid);">More Pula</em></h2>
+      <p class="section-subtitle">Our competitive bidding format means you get the true market value for your vehicle — no lowball offers, no time-wasters.</p>
+
+      <div class="perks">
+        <div class="perk">
+          <div class="perk-icon">🏆</div>
+          <div class="perk-text">
+            <strong>Get Market Value or Better</strong>
+            <span>Competitive bidding drives prices up, not down.</span>
+          </div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon">⚡</div>
+          <div class="perk-text">
+            <strong>Sell in 48 Hours</strong>
+            <span>Most vehicles sell within 2 days of listing.</span>
+          </div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon">🔒</div>
+          <div class="perk-text">
+            <strong>Secure Payment Guaranteed</strong>
+            <span>Funds held in escrow until transfer completes.</span>
+          </div>
+        </div>
+        <div class="perk">
+          <div class="perk-icon">📋</div>
+          <div class="perk-text">
+            <strong>We Handle the Paperwork</strong>
+            <span>BURS, DVLA, and transfer documents — all handled.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sell-form">
+      <h3>List Your Vehicle</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Make</label>
+          <input type="text" placeholder="e.g. Toyota">
+        </div>
+        <div class="form-group">
+          <label>Model</label>
+          <input type="text" placeholder="e.g. Hilux">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Year</label>
+          <input type="text" placeholder="e.g. 2020">
+        </div>
+        <div class="form-group">
+          <label>Mileage (km)</label>
+          <input type="text" placeholder="e.g. 85,000">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Location</label>
+        <select>
+          <option>Select city...</option>
+          <option>Gaborone</option>
+          <option>Francistown</option>
+          <option>Maun</option>
+          <option>Serowe</option>
+          <option>Lobatse</option>
+          <option>Jwaneng</option>
+          <option>Selebi-Phikwe</option>
+          <option>Palapye</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Reserve Price (BWP)</label>
+        <input type="text" placeholder="Minimum you'll accept — or leave blank">
+      </div>
+      <div class="form-group">
+        <label>Your Phone Number</label>
+        <input type="text" placeholder="+267 7X XXX XXX">
+      </div>
+      <button class="form-submit">Submit Listing Request →</button>
+      <p style="font-size:0.73rem; color:var(--muted); text-align:center; margin-top:12px;">Our team will contact you within 2 hours to schedule inspection.</p>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="section-header">
+    <div class="section-eyebrow">Real Buyers & Sellers</div>
+    <h2 class="section-title">What Batswana Say</h2>
+  </div>
+
+  <div class="testi-grid">
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"I bid on a Land Cruiser from Francistown without leaving Gaborone. The process was so smooth — inspected online, bid live, and drove it home 3 days later."</p>
+      <div class="testi-author">
+        <div class="testi-avatar av-1">KM</div>
+        <div>
+          <div class="testi-name">Kelebogile M.</div>
+          <div class="testi-loc">📍 Gaborone South</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"Sold my Ranger Wildtrak in 36 hours. Got P12,000 more than the dealers offered me. BotsAuto is the only way to sell a car in Botswana now."</p>
+      <div class="testi-author">
+        <div class="testi-avatar av-2">TB</div>
+        <div>
+          <div class="testi-name">Thato B.</div>
+          <div class="testi-loc">📍 Mahalapye</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="testi-card">
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"As a fleet manager, I use BotsAuto every quarter to refresh our vehicles. The bulk listing feature and BURS support save us enormous time and money."</p>
+      <div class="testi-author">
+        <div class="testi-avatar av-3">ON</div>
+        <div>
+          <div class="testi-name">Oratile N.</div>
+          <div class="testi-loc">📍 Francistown</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="logo" style="margin-bottom:0;">
+        <div class="logo-icon" style="background:var(--sky-deep);">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:22px;height:22px;fill:white;">
+            <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.85 7h10.29l1.08 3.11H5.77L6.85 7zM19 17H5v-5h14v5z"/>
+            <circle cx="7.5" cy="14.5" r="1.5"/>
+            <circle cx="16.5" cy="14.5" r="1.5"/>
+          </svg>
+        </div>
+        <span class="logo-text">Bots<span>Auto</span></span>
+      </a>
+      <p>Botswana's trusted private vehicle auction platform — transparent, fast, and fair for every buyer and seller across the country.</p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Auctions</h4>
+      <ul>
+        <li><a href="#">Live Auctions</a></li>
+        <li><a href="#">Upcoming Lots</a></li>
+        <li><a href="#">Past Results</a></li>
+        <li><a href="#">How Bidding Works</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Sellers</h4>
+      <ul>
+        <li><a href="#">List a Vehicle</a></li>
+        <li><a href="#">Seller Guide</a></li>
+        <li><a href="#">Inspection Service</a></li>
+        <li><a href="#">Fees & Commissions</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About BotsAuto</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Terms & Conditions</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2025 BotsAuto (Pty) Ltd — Registered in Botswana. All rights reserved.</span>
+    <span>📞 <a href="tel:+26771234567">+267 71 234 567</a> &nbsp;|&nbsp; ✉ <a href="mailto:hello@botsauto.co.bw">hello@botsauto.co.bw</a></span>
+  </div>
+</footer>
+
+<script>
+  // Live countdown timer
+  function updateTimer(elementId, seconds) {
+    let total = seconds;
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const tick = () => {
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      if (total > 0) { total--; setTimeout(tick, 1000); }
+    };
+    tick();
+  }
+  updateTimer('heroTimer', 7 * 3600 + 14 * 60 + 38);
+
+  // Filter buttons
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // Smooth scroll for nav links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+    });
+  });
+</script>
+</body>
+</html>
